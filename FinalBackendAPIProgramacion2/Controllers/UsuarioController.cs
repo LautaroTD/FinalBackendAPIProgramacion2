@@ -24,25 +24,25 @@ namespace FinalBackendAPIProgramacion2.Controllers
 
         // GET: api/Usuario/getAll
         [HttpGet("getAll")]
-        public async Task<ActionResult<IEnumerable<DTOUsuario>>> GetUsuarios()
+        public async Task<ActionResult<IEnumerable<DTOUsuario>>> GetAll()
         { //nota: Te dara un error silencioso en el swagger si usas un controlador NO async con un metodo ASYNC en el SERVICIO.
             var usuarios = await _usuarioService.ObtenerTodos();
             if (usuarios is null) 
             {
-                return StatusCode(500,"Ocurrio un error del lado del servidor, intentelo de nuevo mas tarde.");
+                return StatusCode(500,"Ocurrio un error del lado del servidor, intente de nuevo mas tarde.");
             }
             return Ok(usuarios);
         }
 
         // GET: api/Usuario/getById/{id}
         [HttpGet("getById/{nombre}")]
-        public async Task<ActionResult<DTOUsuario>> GetUsuario(string nombre)
+        public async Task<ActionResult<DTOUsuario>> GetById(int id)
         {
-            var usuario = await _usuarioService.ObtenerPorId(nombre);
+            var usuario = await _usuarioService.ObtenerPorId(id);
 
             if(usuario is null)
             {
-                return NotFound($"Usuario con Nombre {nombre} no encontrado.");
+                return NotFound($"Usuario con Id {id} no encontrado.");
             }
             
             return Ok(usuario);
@@ -50,9 +50,14 @@ namespace FinalBackendAPIProgramacion2.Controllers
 
         // POST: api/Usuario/create
         [HttpPost("create")] // aca falta un modelo DTO para no exponer la entidad directamente
-        public async Task<IActionResult> PostUsuario(DTOUsuario usuarioCrear)
+        public async Task<IActionResult> Post(DTOUsuario usuarioCrear)
         { // No te olvides de poner "async" cuando uses await en este metodo tambien (si es que usas async en los metodos del servicio que usas, obvio).
             //si tenes que devolver algo tipo bool, usa IActionResult, o Task<IActionResult> si es async.
+            if(!ModelState.IsValid) 
+            { 
+                return BadRequest("El usuario no fue rellenado correctamente, intente de nuevo.");
+            }
+
             bool estado = await _usuarioService.Crear(usuarioCrear);
 
             if (estado) 
@@ -61,15 +66,20 @@ namespace FinalBackendAPIProgramacion2.Controllers
             }
             else 
             {
-                return StatusCode(500, "Ocurrio un error del lado del servidor, intentelo de nuevo mas tarde.");
+                return StatusCode(500, "Ocurrio un error del lado del servidor, intente de nuevo mas tarde.");
             }
         }
 
         // PUT: api/Usuario/edit/{id}
         [HttpPut("edit/{nombre}")] // aca falta un modelo DTO para no exponer la entidad directamente
-        public async Task<IActionResult> PutUsuario(string nombre, DTOUsuario usuario)
+        public async Task<IActionResult> Edit(DTOUsuario usuario)
         {
-            bool estado = await _usuarioService.Editar(nombre, usuario);
+            if(!ModelState.IsValid)
+            {
+                return BadRequest("El usuario no fue rellenado correctamente, intente de nuevo.");
+            }
+
+            bool estado = await _usuarioService.Editar(usuario);
 
             if(estado)
             {
@@ -77,15 +87,15 @@ namespace FinalBackendAPIProgramacion2.Controllers
             }
             else
             {
-                return StatusCode(500, "Ocurrio un error del lado del servidor, intentelo de nuevo mas tarde.");
+                return StatusCode(500, "Ocurrio un error del lado del servidor, intente de nuevo mas tarde.");
             }
         }
 
         // DELETE: api/Usuario/delete/{id}
         [HttpDelete("delete/{nombre}")]
-        public async Task<IActionResult> DeleteUsuario(string nombre)
+        public async Task<IActionResult> Delete(int id)
         { 
-            bool estado = await _usuarioService.Eliminar(nombre);
+            bool estado = await _usuarioService.Eliminar(id);
 
             if(estado)
             {

@@ -17,6 +17,8 @@ public partial class Articulo
 
     public string Descripcion { get; set; }
 
+    public string Nombre { get; set; }
+
     public virtual ICollection<ArticuloRelacionado> ArticuloRelacionadoIdPrimerArticuloNavigation { get; set; } = new List<ArticuloRelacionado>();
 
     public virtual ICollection<ArticuloRelacionado> ArticuloRelacionadoIdSegundoArticuloNavigation { get; set; } = new List<ArticuloRelacionado>();

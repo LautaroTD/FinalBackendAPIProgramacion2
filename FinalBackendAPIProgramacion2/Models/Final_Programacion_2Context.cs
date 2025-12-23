@@ -27,6 +27,9 @@ public partial class Final_Programacion_2Context : DbContext
         {
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Descripcion).HasMaxLength(1000);
+            entity.Property(e => e.Nombre)
+                .IsRequired()
+                .HasMaxLength(300);
             entity.Property(e => e.Precio).HasColumnType("money");
             entity.Property(e => e.Url)
                 .IsRequired()

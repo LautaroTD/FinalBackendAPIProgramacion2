@@ -44,17 +44,18 @@ namespace FinalBackendAPIProgramacion2.Services
 
             return lista;
         }
-        public async Task<DTOUsuario?> ObtenerPorId(string nombre)
+        public async Task<DTOUsuario?> ObtenerPorId(int id)
         {
-            var usuario = _context.Usuario.FirstOrDefaultAsync(e=>e.Nombre == nombre);
+            var usuario = _context.Usuario.FindAsync(id);
 
-            if (usuario is null)
+            if (await usuario is null)
             {
-                throw new KeyNotFoundException($"Usuario con Nombre {nombre} no encontrado.");
+                throw new KeyNotFoundException($"Usuario con id {id} no encontrado.");
             }
 
             DTOUsuario user = new DTOUsuario
             {
+                Id = (await usuario).Id,
                 Nombre = (await usuario).Nombre,
                 Contrasena = (await usuario).Contrasena,
                 Email = (await usuario).Email,
@@ -66,9 +67,9 @@ namespace FinalBackendAPIProgramacion2.Services
         public async Task<bool> Crear(DTOUsuario nuevoUsuario)
         {
 
-            if (string.IsNullOrWhiteSpace(nuevoUsuario.Email) || string.IsNullOrWhiteSpace(nuevoUsuario.Contrasena))
+            if (string.IsNullOrWhiteSpace(nuevoUsuario.Email) || string.IsNullOrWhiteSpace(nuevoUsuario.Contrasena) || string.IsNullOrWhiteSpace(nuevoUsuario.Rol) || string.IsNullOrWhiteSpace(nuevoUsuario.Nombre))
             {
-                throw new ArgumentException("El email y la contraseña no pueden estar vacíos.");
+                throw new ArgumentException("Todos los campos son obligatorios, rellene los campos e intente de nuevo.");
             }
 
             //debido a que en esta linea flataba el await, te daba un error silencioso en el swagger diciendote que estas haciendo mas de una llamada al dbcontext
@@ -121,53 +122,43 @@ namespace FinalBackendAPIProgramacion2.Services
             return true;
         }
 
-        public async Task<bool> Editar(string nombre, DTOUsuario usuarioActualizado)
+        public async Task<bool> Editar(DTOUsuario usuarioActualizado)
         {
-            var usuarioExistente = await _context.Usuario.FirstOrDefaultAsync(e=>e.Nombre == nombre);
-            if (usuarioExistente == null)
+            var usuarioExistente = await _context.Usuario.FindAsync(usuarioActualizado.Id);
+            if (usuarioExistente is null)
             {
-                return false;
+                throw new ArgumentException("El usuario que intenta acceder no existe en la base de datos.");
             }
             
-            if(string.IsNullOrWhiteSpace(usuarioActualizado.Email) && string.IsNullOrWhiteSpace(usuarioActualizado.Contrasena) && string.IsNullOrWhiteSpace(usuarioActualizado.Rol))
+            if(string.IsNullOrWhiteSpace(usuarioActualizado.Email) || string.IsNullOrWhiteSpace(usuarioActualizado.Contrasena) || string.IsNullOrWhiteSpace(usuarioActualizado.Rol) || string.IsNullOrWhiteSpace(usuarioActualizado.Nombre))
             {
-                return false;
+                throw new ArgumentException("Alguno de los campos esta vacio, rellene los campos e intente de nuevo.");
             }
 
-            if (!string.IsNullOrWhiteSpace(usuarioActualizado.Email))
-            {
-                usuarioExistente.Email = usuarioActualizado.Email;
-            }
-            
-            if (!string.IsNullOrWhiteSpace(usuarioActualizado.Contrasena))
-            {
-                usuarioExistente.Contrasena = usuarioActualizado.Contrasena;
-            }
-            
-            if (!string.IsNullOrWhiteSpace(usuarioActualizado.Rol))
-            {
-                usuarioExistente.Rol = usuarioActualizado.Rol;
-            }
-            
+            usuarioExistente.Email = usuarioActualizado.Email;
+            usuarioExistente.Contrasena = usuarioActualizado.Contrasena;
+            usuarioExistente.Rol = usuarioActualizado.Rol;
+            usuarioExistente.Nombre = usuarioActualizado.Nombre;
+
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al guardar los cambios del usuario con Nombre {Nombre}", nombre);
+                _logger.LogError(ex, "Error al guardar los cambios del usuario con Nombre {Nombre}", usuarioActualizado.Nombre);
                 return false;
             }
             
             return true;
         }
-        public async Task<bool> Eliminar(string nombre)
+        public async Task<bool> Eliminar(int id)
         {
-            var usuarioExistente = await _context.Usuario.FirstOrDefaultAsync(e=>e.Nombre == nombre);
+            var usuarioExistente = await _context.Usuario.FindAsync(id);
 
             if (usuarioExistente is null)
             {
-                return false;
+                throw new ArgumentException("No se encontro el usuario en la base de datos.");
             }
 
             _context.Usuario.Remove(usuarioExistente);
@@ -178,7 +169,7 @@ namespace FinalBackendAPIProgramacion2.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al eliminar el usuario con Nombre {Nombre}", nombre);
+                _logger.LogError(ex, "Error al eliminar el usuario con Nombre {Nombre}", usuarioExistente.Nombre);
                 return false;
             }
             
