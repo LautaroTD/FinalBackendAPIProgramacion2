@@ -7,7 +7,7 @@ namespace FinalBackendAPIProgramacion2.Interfaces
         Task<IEnumerable<DTOResena?>> ObtenerTodos();
         Task<DTOResena?> ObtenerPorId(int id);
         Task<bool> Crear(DTOResena resena);
-        Task<bool> Editar(DTOResena resena);
+        Task<bool> Editar(int id, int calificacion, string descripcion);
         Task<bool> Eliminar(int id);
     }
 }

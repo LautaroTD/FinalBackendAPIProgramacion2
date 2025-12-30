@@ -115,7 +115,7 @@ namespace FinalBackendAPIProgramacion2.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al crear el usuario {Nombre}", nuevoUsuario.Nombre);
+                _logger.LogError(ex, $"Error al crear el usuario {nuevoUsuario.Nombre}");
                 return false;
             }
             
@@ -124,16 +124,17 @@ namespace FinalBackendAPIProgramacion2.Services
 
         public async Task<bool> Editar(DTOUsuario usuarioActualizado)
         {
+            if(string.IsNullOrWhiteSpace(usuarioActualizado.Email) || string.IsNullOrWhiteSpace(usuarioActualizado.Contrasena) || string.IsNullOrWhiteSpace(usuarioActualizado.Rol) || string.IsNullOrWhiteSpace(usuarioActualizado.Nombre))
+            {
+                throw new ArgumentException("Alguno de los campos esta vacio, rellene los campos e intente de nuevo.");
+            }
+
             var usuarioExistente = await _context.Usuario.FindAsync(usuarioActualizado.Id);
             if (usuarioExistente is null)
             {
                 throw new ArgumentException("El usuario que intenta acceder no existe en la base de datos.");
             }
             
-            if(string.IsNullOrWhiteSpace(usuarioActualizado.Email) || string.IsNullOrWhiteSpace(usuarioActualizado.Contrasena) || string.IsNullOrWhiteSpace(usuarioActualizado.Rol) || string.IsNullOrWhiteSpace(usuarioActualizado.Nombre))
-            {
-                throw new ArgumentException("Alguno de los campos esta vacio, rellene los campos e intente de nuevo.");
-            }
 
             usuarioExistente.Email = usuarioActualizado.Email;
             usuarioExistente.Contrasena = usuarioActualizado.Contrasena;
@@ -146,7 +147,7 @@ namespace FinalBackendAPIProgramacion2.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al guardar los cambios del usuario con Nombre {Nombre}", usuarioActualizado.Nombre);
+                _logger.LogError(ex, $"Error al guardar los cambios del usuario con Nombre {usuarioActualizado.Nombre}");
                 return false;
             }
             
@@ -169,7 +170,7 @@ namespace FinalBackendAPIProgramacion2.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al eliminar el usuario con Nombre {Nombre}", usuarioExistente.Nombre);
+                _logger.LogError(ex, $"Error al eliminar el usuario con Nombre {usuarioExistente.Nombre}");
                 return false;
             }
             

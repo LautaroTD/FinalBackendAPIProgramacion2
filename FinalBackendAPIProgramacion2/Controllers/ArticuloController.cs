@@ -36,14 +36,14 @@ namespace FinalBackendAPIProgramacion2.Controllers
         [HttpGet("getById/{id}")]
         public async Task<ActionResult<DTOArticulo>> GetById(int id)
         {
-            var usuario = await _articuloService.ObtenerPorId(id);
+            var articulo = await _articuloService.ObtenerPorId(id);
 
-            if (usuario is null)
+            if (articulo is null)
             {
-                return NotFound($"Usuario con Id {id} no encontrado.");
+                return NotFound($"Articulo con Id {id} no encontrado.");
             }
 
-            return Ok(usuario);
+            return Ok(articulo);
         }
 
         [HttpPost("create")] // aca falta un modelo DTO para no exponer la entidad directamente
@@ -67,8 +67,8 @@ namespace FinalBackendAPIProgramacion2.Controllers
             }
         }
 
-        [HttpPut("edit/{articulo.Id}")]
-        public async Task<IActionResult> Edit(DTOArticulo articulo)
+        [HttpPut("edit/{id}")]
+        public async Task<IActionResult> Edit(int id, DTOArticulo articulo)
         {
             if (!ModelState.IsValid)
             {

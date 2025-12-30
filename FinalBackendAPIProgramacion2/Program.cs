@@ -19,6 +19,7 @@ builder.Services.AddDbContext<Final_Programacion_2Context>(options => options.Us
 
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IArticuloService, ArticuloService>();
+builder.Services.AddScoped<IResenaService, ResenaService>();
 
 var app = builder.Build();
 

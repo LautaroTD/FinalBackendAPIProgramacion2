@@ -152,26 +152,25 @@ namespace FinalBackendAPIProgramacion2.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al crear el articulo {Nombre}", nuevoArticulo.NombreProducto);
+                _logger.LogError(ex, $"Error al crear el articulo {nuevoArticulo.NombreProducto}");
                 return false;
             }
 
             return true;
         }
 
-
         public async Task<bool> Editar(DTOArticulo articuloActualizado)
         {
+            if (string.IsNullOrWhiteSpace(articuloActualizado.NombrePublicador) || string.IsNullOrWhiteSpace(articuloActualizado.Url) || string.IsNullOrWhiteSpace(articuloActualizado.Descripcion) || string.IsNullOrWhiteSpace(articuloActualizado.NombreProducto))
+            {
+                throw new ArgumentException("Todos los campos son obligatorios, rellene los campos e intentelo de nuevo.");
+            }
+
             var articuloExistente = await _context.Articulo.FindAsync(articuloActualizado.Id);
             
             if (articuloExistente is null)
             {
                 throw new ArgumentException("No se encontro el articulo que quiere editar, intente de nuevo.");
-            }
-
-            if (string.IsNullOrWhiteSpace(articuloActualizado.NombrePublicador) || string.IsNullOrWhiteSpace(articuloActualizado.Url) || string.IsNullOrWhiteSpace(articuloActualizado.Descripcion) || string.IsNullOrWhiteSpace(articuloActualizado.NombreProducto))
-            {
-                throw new ArgumentException("Todos los campos son obligatorios, rellene los campos e intentelo de nuevo.");
             }
 
             var usuario = await _context.Usuario.FirstOrDefaultAsync(e => e.Nombre == articuloActualizado.NombrePublicador);
@@ -193,7 +192,7 @@ namespace FinalBackendAPIProgramacion2.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al guardar los cambios del articulo con Nombre {Nombre}", articuloActualizado.NombreProducto);
+                _logger.LogError(ex, $"Error al guardar los cambios del articulo con Nombre {articuloActualizado.NombreProducto}");
                 return false;
             }
 
@@ -217,7 +216,7 @@ namespace FinalBackendAPIProgramacion2.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al eliminar el usuario con Nombre {Nombre}", articuloExistente.Nombre);
+                _logger.LogError(ex, $"Error al eliminar el usuario con Nombre {articuloExistente.Nombre}");
                 return false;
             }
 
