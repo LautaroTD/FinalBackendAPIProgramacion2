@@ -8,7 +8,7 @@ namespace FinalBackendAPIProgramacion2.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ResenaController : Controller
+    public class ResenaController : ControllerBase
     {
         private readonly Final_Programacion_2Context _context;
         private readonly IResenaService _resenaService;

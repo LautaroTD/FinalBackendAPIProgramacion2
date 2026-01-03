@@ -25,6 +25,10 @@ namespace FinalBackendAPIProgramacion2.Controllers
         [HttpGet("getAll")]
         public async Task<ActionResult<IEnumerable<DTOArticulo>>> GetAll()
         { //nota: Te dara un error silencioso en el swagger si usas un controlador NO async con un metodo ASYNC en el SERVICIO.
+            if (!ModelState.IsValid)
+            {
+
+            }
             var articulo = await _articuloService.ObtenerTodos();
             if (articulo is null)
             {
