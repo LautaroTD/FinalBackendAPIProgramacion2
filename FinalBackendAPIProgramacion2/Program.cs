@@ -22,6 +22,18 @@ builder.Services.AddScoped<IArticuloService, ArticuloService>();
 builder.Services.AddScoped<IResenaService, ResenaService>();
 builder.Services.AddScoped<IArticuloRelacionadoService, ArticuloRelacionadoService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("BlazorWasm", policy =>
+    {
+        policy
+        //WithOrigins es el puerto cliente permitido, NO el puerto de la api, sino del CLIENTE.
+            .WithOrigins("https://localhost:7278") // ACA EL PUERTO DEL CLIENTE //podes averiguar cual es ejecutando el cliente y viendo que te pone el visual
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -32,6 +44,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("BlazorWasm");
 
 app.UseAuthorization();
 

@@ -1,14 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
+﻿using FinalBackendAPIProgramacion2.DTO;
+using FinalBackendAPIProgramacion2.Interfaces;
 using FinalBackendAPIProgramacion2.Models;
 using FinalBackendAPIProgramacion2.Services;
-using FinalBackendAPIProgramacion2.Interfaces;
+using Microsoft.AspNetCore.Cors; //este using es para el EnableCors, muy importante para poder servir la API al cliente independiente webassembly
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using FinalBackendAPIProgramacion2.DTO;
 
 
 namespace FinalBackendAPIProgramacion2.Controllers
 {
+    [EnableCors("BlazorWasm")]
     [ApiController]
     [Route("api/[controller]")]
     public class ArticuloController : ControllerBase
@@ -25,10 +27,7 @@ namespace FinalBackendAPIProgramacion2.Controllers
         [HttpGet("getAll")]
         public async Task<ActionResult<IEnumerable<DTOArticulo>>> GetAll()
         { //nota: Te dara un error silencioso en el swagger si usas un controlador NO async con un metodo ASYNC en el SERVICIO.
-            if (!ModelState.IsValid)
-            {
-
-            }
+            
             var articulo = await _articuloService.ObtenerTodos();
             if (articulo is null)
             {
