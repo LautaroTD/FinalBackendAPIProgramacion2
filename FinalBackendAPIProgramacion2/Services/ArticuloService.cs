@@ -62,7 +62,8 @@ namespace FinalBackendAPIProgramacion2.Services
                     Precio = articulo.Precio,
                     Url = articulo.Url,
                     Descripcion = articulo.Descripcion,
-                    NombrePublicador = publicador.Nombre
+                    NombrePublicador = publicador.Nombre,
+                    NombreProducto = articulo.Nombre
                 };
                 listaArticulo.Add(articuloTemp);
             }
