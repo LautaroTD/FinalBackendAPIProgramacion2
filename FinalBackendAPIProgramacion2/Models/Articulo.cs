@@ -2,21 +2,23 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace FinalBackendAPIProgramacion2.Models;
 
 public partial class Articulo
 {
+    [Required]
     public int Id { get; set; }
-
+    [Required]
     public int IdUsuario { get; set; }
-
+    [Required]
     public string Url { get; set; }
-
+    [Required]
     public decimal Precio { get; set; }
 
     public string Descripcion { get; set; }
-
+    [Required]
     public string Nombre { get; set; }
 
     public virtual ICollection<ArticuloRelacionado> ArticuloRelacionadoIdPrimerArticuloNavigation { get; set; } = new List<ArticuloRelacionado>();

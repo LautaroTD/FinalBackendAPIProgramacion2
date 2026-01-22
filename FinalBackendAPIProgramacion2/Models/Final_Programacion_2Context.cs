@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 
 namespace FinalBackendAPIProgramacion2.Models;
 
@@ -12,6 +13,8 @@ public partial class Final_Programacion_2Context : DbContext
         : base(options)
     {
     }
+
+    public DbSet<Imagen> Imagen { get; set; } = null!;
 
     public virtual DbSet<Articulo> Articulo { get; set; }
 
@@ -23,6 +26,19 @@ public partial class Final_Programacion_2Context : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Imagen>(entity =>
+        {
+            entity.ToTable("Imagen");
+
+            entity.Property(e => e.Id).ValueGeneratedNever().IsRequired();
+            entity.Property(e => e.Ruta).HasMaxLength(1000).IsRequired();
+            entity.Property(e => e.TipoDeRelacion)
+                  .IsRequired()
+                  .HasMaxLength(20);
+            entity.Property(e => e.IdRelacionado)
+                  .IsRequired().ValueGeneratedNever();
+        });
+
         modelBuilder.Entity<Articulo>(entity =>
         {
             entity.Property(e => e.Id).ValueGeneratedNever();

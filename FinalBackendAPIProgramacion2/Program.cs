@@ -21,6 +21,7 @@ builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IArticuloService, ArticuloService>();
 builder.Services.AddScoped<IResenaService, ResenaService>();
 builder.Services.AddScoped<IArticuloRelacionadoService, ArticuloRelacionadoService>();
+builder.Services.AddScoped<IImagenService, ImagenService>();
 
 builder.Services.AddCors(options =>
 {

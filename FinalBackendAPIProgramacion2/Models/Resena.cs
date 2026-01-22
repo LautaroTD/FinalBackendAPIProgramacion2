@@ -2,17 +2,19 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace FinalBackendAPIProgramacion2.Models;
 
 public partial class Resena
 {
+    [Required]
     public int Id { get; set; }
-
+    [Required]
     public int IdUsuario { get; set; }
-
+    [Required]
     public int IdArticulo { get; set; }
-
+    [Required]
     public int Calificacion { get; set; }
 
     public string Descripcion { get; set; }
