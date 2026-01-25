@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FinalBackendAPIProgramacion2.Models
 {
@@ -14,6 +16,11 @@ namespace FinalBackendAPIProgramacion2.Models
         public int IdRelacionado { get; set; }
         [Required]
         public string TipoDeRelacion { get; set; }
+
+        //visto en el Video
+        [NotMapped]
+        [Required]
+        public IFormFile? archivoDeImagen{ get; set; }
 
     }
 }

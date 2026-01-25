@@ -21,7 +21,8 @@ builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IArticuloService, ArticuloService>();
 builder.Services.AddScoped<IResenaService, ResenaService>();
 builder.Services.AddScoped<IArticuloRelacionadoService, ArticuloRelacionadoService>();
-builder.Services.AddScoped<IImagenService, ImagenService>();
+builder.Services.AddTransient<IImagenService, ImagenService>();
+
 
 builder.Services.AddCors(options =>
 {
@@ -47,6 +48,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("BlazorWasm");
+
+app.UseStaticFiles(); //necesario para poder usar wwwroot y acceder a las imagenes de FORMA ESTATICA Y PUBLICA
 
 app.UseAuthorization();
 

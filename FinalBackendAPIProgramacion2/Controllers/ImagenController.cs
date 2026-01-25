@@ -19,7 +19,7 @@ namespace FinalBackendAPIProgramacion2.Controllers
             _imagenService = imagenService;
         }
 
-        [HttpGet("getAll")]
+        [HttpGet("getAll/{tipoDeObjeto}/{objetoId}")] //OK, ahora esta funcion deberia traer las imagenes en si, sea como sea su formato.
         public async Task<ActionResult<IEnumerable<Imagen>>> GetAll(int objetoId, string tipoDeObjeto)
         {
             var listaDeImagenes = await _imagenService.ObtenerTodos(objetoId, tipoDeObjeto);
@@ -31,7 +31,7 @@ namespace FinalBackendAPIProgramacion2.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Post(Imagen imagenNueva)
+        public async Task<IActionResult> Post([FromForm]Imagen imagenNueva)
         { // No te olvides de poner "async" cuando uses await en este metodo tambien (si es que usas async en los metodos del servicio que usas, obvio).
             //si tenes que devolver algo tipo bool, usa IActionResult, o Task<IActionResult> si es async.
             if (!ModelState.IsValid)
@@ -39,29 +39,29 @@ namespace FinalBackendAPIProgramacion2.Controllers
                 return BadRequest("La imagen no llego al sistema correctamente, intente de nuevo.");
             }
 
-            bool estado = await _imagenService.Crear(imagenNueva);
+            Tuple<bool,string> estado = await _imagenService.Crear(imagenNueva);
 
-            if (estado)
+            if (estado.Item1)
             {
                 return Ok();
             }
             else
             {
-                return StatusCode(500, "Ocurrio un error del lado del servidor, intente de nuevo mas tarde.");
+                return StatusCode(500, estado.Item2);
             }
         }
 
-        [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("delete/{id}/{nombreDeImagen}")]
+        public async Task<IActionResult> Delete(int id,string nombreDeImagen)
         {
-            bool estado = await _imagenService.Eliminar(id);
-            if (estado)
+            Tuple<bool,string> estado = await _imagenService.Eliminar(id, nombreDeImagen);
+            if (estado.Item1)
             {
                 return Ok();
             }
             else
             {
-                return StatusCode(500, "Ocurrio un error del lado del servidor, intente de nuevo mas tarde.");
+                return StatusCode(500, estado.Item2);
             }
         }
     }
