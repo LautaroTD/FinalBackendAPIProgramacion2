@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.VisualBasic;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
 namespace FinalBackendAPIProgramacion2.Services
 {
@@ -39,6 +40,22 @@ namespace FinalBackendAPIProgramacion2.Services
             if (!allowedExtensions.Contains(ext))
             {
                 string msg = string.Format("Solo se permiten las siguientes extensiones: {0}", string.Join(",", allowedExtensions));
+                return new Tuple<bool, string>(false, msg);
+            }
+
+            if(imagenNueva.TipoDeRelacion == "Usuario" && imagenNueva.IdRelacionado != imagenNueva.IdUsuario)
+            {
+                string msg = $"Error, no puede subir una imagen de un usuario que no sea usted mismo"; //el valor IdUsuario deberia ser enviado automaticamente por el sistema cliente, no deberia fallar.
+                _logger.LogError($"Error, se intento crear una imagen de otro usuario, IdUsuario: {imagenNueva.IdUsuario}, IdRelacionado {imagenNueva.IdRelacionado}.");
+                return new Tuple<bool, string>(false, msg);
+            }
+
+            var usuario = await _context.Usuario.FindAsync(imagenNueva.IdUsuario);
+
+            if (usuario is null)
+            {
+                string msg = $"Error, intentelo de nuevo mas tarde"; //el valor IdUsuario deberia ser enviado automaticamente por el sistema cliente, no deberia fallar.
+                _logger.LogError($"Error, no se encontro el usuario de ID {imagenNueva.IdUsuario} en la base de datos, se intento crear la imagen de IdRelacionado {imagenNueva.IdRelacionado} y TipoDeRelacion {imagenNueva.TipoDeRelacion}.");
                 return new Tuple<bool, string>(false, msg);
             }
 
@@ -118,7 +135,7 @@ namespace FinalBackendAPIProgramacion2.Services
 
             string uniqueString = Guid.NewGuid().ToString();
 
-            var newFileName = uniqueString + ext;
+            var newFileName = uniqueString + $"Tipo{imagenNueva.TipoDeRelacion}" + $"IdRelacionado{imagenNueva.IdRelacionado}" + $"Usuario{imagenNueva.IdUsuario}" + ext;
             var fileWithPath = Path.Combine(path, newFileName);
 
             try
@@ -139,7 +156,7 @@ namespace FinalBackendAPIProgramacion2.Services
             }
         }
 
-        public async Task<Tuple<bool,string>> Eliminar(int id, string nombreDeImagen)
+        public async Task<Tuple<bool,string>> Eliminar(int id, string nombreDeImagen) //falta asegurarme que el que borre la imagen sea admin o el usuario que la creo
         {
             var imagen = await _context.Imagen.FindAsync(id);
             

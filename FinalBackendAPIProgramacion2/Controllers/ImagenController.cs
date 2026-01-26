@@ -19,7 +19,7 @@ namespace FinalBackendAPIProgramacion2.Controllers
             _imagenService = imagenService;
         }
 
-        [HttpGet("getAll/{tipoDeObjeto}/{objetoId}")] //OK, ahora esta funcion deberia traer las imagenes en si, sea como sea su formato.
+        [HttpGet("getAll/{tipoDeObjeto}/{objetoId}")]
         public async Task<ActionResult<IEnumerable<Imagen>>> GetAll(int objetoId, string tipoDeObjeto)
         {
             var listaDeImagenes = await _imagenService.ObtenerTodos(objetoId, tipoDeObjeto);

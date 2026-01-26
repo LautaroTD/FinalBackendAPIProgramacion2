@@ -35,6 +35,7 @@ public partial class Final_Programacion_2Context : DbContext
             entity.Property(e => e.TipoDeRelacion)
                   .IsRequired()
                   .HasMaxLength(20);
+            entity.Property(e => e.IdUsuario).ValueGeneratedNever().IsRequired();
             entity.Property(e => e.IdRelacionado)
                   .IsRequired().ValueGeneratedNever();
         });

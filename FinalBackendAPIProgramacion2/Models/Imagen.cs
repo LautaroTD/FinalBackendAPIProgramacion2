@@ -16,6 +16,8 @@ namespace FinalBackendAPIProgramacion2.Models
         public int IdRelacionado { get; set; }
         [Required]
         public string TipoDeRelacion { get; set; }
+        [Required]
+        public int IdUsuario { get; set; }
 
         //visto en el Video
         [NotMapped]

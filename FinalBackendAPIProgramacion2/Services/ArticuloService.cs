@@ -59,6 +59,7 @@ namespace FinalBackendAPIProgramacion2.Services
 
                 DTOArticulo articuloTemp = new DTOArticulo
                 {
+                    Id = articulo.Id,
                     Precio = articulo.Precio,
                     Url = articulo.Url,
                     Descripcion = articulo.Descripcion,
