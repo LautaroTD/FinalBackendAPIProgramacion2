@@ -1,10 +1,12 @@
 ﻿using FinalBackendAPIProgramacion2.Interfaces;
 using FinalBackendAPIProgramacion2.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.VisualBasic;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
+using Microsoft.VisualBasic;
+using System;
 
 namespace FinalBackendAPIProgramacion2.Services
 {
@@ -21,7 +23,6 @@ namespace FinalBackendAPIProgramacion2.Services
             _logger = logger;
             environment = env;
         }
-         
         public async Task<IEnumerable<Imagen>> ObtenerTodos(int objetoId, string TipoDeObjeto)
         {
             return await _context.Imagen
@@ -29,6 +30,7 @@ namespace FinalBackendAPIProgramacion2.Services
                      && i.IdRelacionado == objetoId)
             .ToListAsync();
         }
+
 
         public async Task<Tuple<bool,string>> Crear(Imagen imagenNueva)
         {
@@ -113,19 +115,8 @@ namespace FinalBackendAPIProgramacion2.Services
 
             } while (ocupado == true);
 
-            _context.Imagen.Add(imagenNueva);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                string msg = $"Error al guardar el registro de la imagen {imagenNueva.Id} en la base de datos, intente de nuevo mas tarde.";
-                _logger.LogError(ex, msg);
-                return new Tuple<bool, string>(false, msg);
-            }
-
+            string uniqueString = Guid.NewGuid().ToString();
+            
             var contentPath = environment.ContentRootPath;
             var path = Path.Combine(contentPath, "wwwroot", "Imagenes", imagenNueva.Ruta);
             if (!Directory.Exists(path))
@@ -133,16 +124,13 @@ namespace FinalBackendAPIProgramacion2.Services
                 Directory.CreateDirectory(path);
             }
 
-            string uniqueString = Guid.NewGuid().ToString();
-
-            var newFileName = uniqueString + $"Tipo{imagenNueva.TipoDeRelacion}" + $"IdRelacionado{imagenNueva.IdRelacionado}" + $"Usuario{imagenNueva.IdUsuario}" + ext;
+            var newFileName = uniqueString + ext;
             var fileWithPath = Path.Combine(path, newFileName);
 
             try
             {
                 using var stream = new FileStream(fileWithPath, FileMode.Create);
                 imagenNueva.archivoDeImagen.CopyTo(stream);
-                return new Tuple<bool, string>(true, newFileName);
             }
             catch (IOException ex)
             {
@@ -154,6 +142,23 @@ namespace FinalBackendAPIProgramacion2.Services
                 _logger.LogError(ex, $"Error al guardar la imagen, id: {imagenNueva.Id}");
                 return new Tuple<bool, string>(false, "Error al guardar la imagen, intente de nuevo mas tarde.");
             }
+
+            imagenNueva.Ruta += $"/{uniqueString}" + $"{ext}";
+
+            _context.Imagen.Add(imagenNueva);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return new Tuple<bool, string>(true, newFileName);
+            }
+            catch (Exception ex)
+            {
+                string msg = $"Error al guardar el registro de la imagen {imagenNueva.Id} en la base de datos, intente de nuevo mas tarde.";
+                _logger.LogError(ex, msg);
+                return new Tuple<bool, string>(false, msg);
+            }
+
         }
 
         public async Task<Tuple<bool,string>> Eliminar(int id, string nombreDeImagen) //falta asegurarme que el que borre la imagen sea admin o el usuario que la creo
@@ -169,7 +174,7 @@ namespace FinalBackendAPIProgramacion2.Services
             }
 
             var wwwPath = environment.WebRootPath;
-            var path = Path.Combine("wwwroot", "Imagenes", imagen.Ruta, nombreDeImagen);
+            var path = Path.Combine("wwwroot", "Imagenes", imagen.Ruta);
             if (!System.IO.File.Exists(path))
             {
                 string msg = $"Error, no se encontro la imagen en el sistema de archivos.";

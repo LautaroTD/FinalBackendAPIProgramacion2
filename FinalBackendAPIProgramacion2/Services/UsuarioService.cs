@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 //COMO ToListAsync, si te deja hacer ToList pero no ToListAsync, es porque te falta ese paquete.
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FinalBackendAPIProgramacion2.Services
 {
@@ -17,10 +16,12 @@ namespace FinalBackendAPIProgramacion2.Services
     {
         private readonly Final_Programacion_2Context _context;
         private readonly ILogger<UsuarioService> _logger;
-        public UsuarioService(Final_Programacion_2Context context, ILogger<UsuarioService> logger)
+        private readonly IPasswordHasher<Usuario> _passwordHasher;
+        public UsuarioService(Final_Programacion_2Context context, ILogger<UsuarioService> logger, IPasswordHasher<Usuario> passwordHasher)
         {
             _context = context;
             _logger = logger;
+            _passwordHasher = passwordHasher;
         }
         // Implementacion de los metodos de la interfaz IUsuarioService
         // en get no hace falta un try catch, solo al cambiar la base de datos.
@@ -87,6 +88,8 @@ namespace FinalBackendAPIProgramacion2.Services
                 Email = nuevoUsuario.Email,
                 Rol = nuevoUsuario.Rol
             };
+
+            usuarioParaCrear.Contrasena = _passwordHasher.HashPassword(usuarioParaCrear, usuarioParaCrear.Contrasena);
 
             bool ocupado = true;
             var random = new Random(); //esto es importante, el "new Random();" debe estar FUERA de la repeticion do{}while. y el random.Next debe estar DENTRO de la repeticion.

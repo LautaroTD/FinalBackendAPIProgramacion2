@@ -11,7 +11,7 @@ namespace FinalBackendAPIProgramacion2.Models
         [Required]
         public int Id { get; set; }
         [Required]
-        public string Ruta { get; set; }
+        public string Ruta { get; set; } //Ruta, al crear el objeto, es la ruta donde ira la imagen. Ruta cuando se busca la imagen es la ruta + el nombre GUID de la imagen, que se puede ver en la base de datos para buscarlo.
         [Required]
         public int IdRelacionado { get; set; }
         [Required]

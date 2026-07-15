@@ -9,7 +9,7 @@ namespace FinalBackendAPIProgramacion2.Services
     public class ArticuloRelacionadoService : IArticuloRelacionadoService
     {
         private readonly Final_Programacion_2Context _context;
-        private readonly ILogger<ArticuloRelacionadoService > _logger;
+        private readonly ILogger<ArticuloRelacionadoService> _logger;
 
         public ArticuloRelacionadoService(Final_Programacion_2Context context, ILogger<ArticuloRelacionadoService> logger)
         {

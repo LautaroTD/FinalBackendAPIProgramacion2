@@ -5,6 +5,9 @@ using FinalBackendAPIProgramacion2.Services;
 using FinalBackendAPIProgramacion2.Interfaces;
 using System.Threading.Tasks;
 using FinalBackendAPIProgramacion2.DTO;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace FinalBackendAPIProgramacion2.Controllers
 {

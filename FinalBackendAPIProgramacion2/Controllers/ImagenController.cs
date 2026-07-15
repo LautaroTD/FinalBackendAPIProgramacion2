@@ -2,7 +2,10 @@
 using FinalBackendAPIProgramacion2.Interfaces;
 using FinalBackendAPIProgramacion2.Models;
 using FinalBackendAPIProgramacion2.Services;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
+using System.Linq;
 
 namespace FinalBackendAPIProgramacion2.Controllers
 {
@@ -12,14 +15,16 @@ namespace FinalBackendAPIProgramacion2.Controllers
     {
         private readonly Final_Programacion_2Context _context;
         private readonly IImagenService _imagenService;
+        private readonly IWebHostEnvironment _env;
 
-        public ImagenController(Final_Programacion_2Context context, IImagenService imagenService)
+        public ImagenController(Final_Programacion_2Context context, IImagenService imagenService, IWebHostEnvironment env)
         {
             _context = context;
             _imagenService = imagenService;
+            _env = env;
         }
 
-        [HttpGet("getAll/{tipoDeObjeto}/{objetoId}")]
+        [HttpGet("search/{tipoDeObjeto}/{objetoId}")]
         public async Task<ActionResult<IEnumerable<Imagen>>> GetAll(int objetoId, string tipoDeObjeto)
         {
             var listaDeImagenes = await _imagenService.ObtenerTodos(objetoId, tipoDeObjeto);
@@ -29,6 +34,7 @@ namespace FinalBackendAPIProgramacion2.Controllers
             }
             return Ok(listaDeImagenes);
         }
+            
 
         [HttpPost("create")]
         public async Task<IActionResult> Post([FromForm]Imagen imagenNueva)

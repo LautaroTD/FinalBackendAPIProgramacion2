@@ -1,12 +1,14 @@
-using Microsoft.EntityFrameworkCore;
-using System;
-using FinalBackendAPIProgramacion2.Models;
 using FinalBackendAPIProgramacion2.Interfaces;
+using FinalBackendAPIProgramacion2.Models;
 using FinalBackendAPIProgramacion2.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
-
-//no anda y no se porque vergas no, puto mcirosoft de mierda, no puede ser mas octuso e impredecible ni a proposito.
 
 // Add services to the container.
 
@@ -22,7 +24,43 @@ builder.Services.AddScoped<IArticuloService, ArticuloService>();
 builder.Services.AddScoped<IResenaService, ResenaService>();
 builder.Services.AddScoped<IArticuloRelacionadoService, ArticuloRelacionadoService>();
 builder.Services.AddTransient<IImagenService, ImagenService>();
+builder.Services.AddScoped<IAutentificacionService, AutentificacionService>();
+builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
+//JWT
+builder.Services.AddSingleton<PemKeyProvider>();
+builder.Services.AddSingleton<IKeyProvider, PemKeyProvider>();
+builder.Services.AddScoped<JwtService>();
 
+var jwtSection = builder.Configuration.GetSection("Jwt");
+
+var privateKeyPath = jwtSection["PrivateKeyPath"];
+var publicKeyPath = jwtSection["PublicKeyPath"];
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var provider = builder.Services.BuildServiceProvider().GetRequiredService<PemKeyProvider>();
+
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+
+                IssuerSigningKey =
+                    new RsaSecurityKey(provider.PublicKey)
+            };
+    });
+
+builder.Services.AddAuthorization();
+
+//JWT
 
 builder.Services.AddCors(options =>
 {
