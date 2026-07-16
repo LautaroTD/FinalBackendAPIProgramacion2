@@ -2,19 +2,17 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace FinalBackendAPIProgramacion2.Models;
 
 public partial class ArticuloRelacionado
 {
-    [Required]
     public int Id { get; set; }
-    [Required]
+
     public int IdUsuario { get; set; }
-    [Required]
+
     public int IdPrimerArticulo { get; set; }
-    [Required]
+
     public int IdSegundoArticulo { get; set; }
 
     public virtual Articulo IdPrimerArticuloNavigation { get; set; }

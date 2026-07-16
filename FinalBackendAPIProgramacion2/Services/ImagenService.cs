@@ -1,5 +1,6 @@
 ﻿using FinalBackendAPIProgramacion2.Interfaces;
 using FinalBackendAPIProgramacion2.Models;
+using FinalBackendAPIProgramacion2.DTO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -32,12 +33,15 @@ namespace FinalBackendAPIProgramacion2.Services
         }
 
 
-        public async Task<Tuple<bool,string>> Crear(Imagen imagenNueva)
+        public async Task<Tuple<bool,string>> Crear(DTOImagenEntrada imagenEntrante)
         {
-            if (string.IsNullOrEmpty(imagenNueva.Ruta) || string.IsNullOrEmpty(imagenNueva.TipoDeRelacion) || imagenNueva.archivoDeImagen is null)
+
+            //comprobar si los campos son validos
+            if (string.IsNullOrEmpty(imagenEntrante.Ruta) || string.IsNullOrEmpty(imagenEntrante.TipoDeRelacion) || imagenEntrante.archivoDeImagen is null)
                 throw new ArgumentException($"La imagen no pudo ser agregada, todos los campos son obligatorios, rellene los campos y vuelva a intentarlo.");
 
-            var ext = Path.GetExtension(imagenNueva.archivoDeImagen.FileName);
+            
+            var ext = Path.GetExtension(imagenEntrante.archivoDeImagen.FileName);
             var allowedExtensions = new string[] { ".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG" };
             if (!allowedExtensions.Contains(ext))
             {
@@ -45,61 +49,72 @@ namespace FinalBackendAPIProgramacion2.Services
                 return new Tuple<bool, string>(false, msg);
             }
 
-            if(imagenNueva.TipoDeRelacion == "Usuario" && imagenNueva.IdRelacionado != imagenNueva.IdUsuario)
+            if(imagenEntrante.TipoDeRelacion == "Usuario" && imagenEntrante.IdRelacionado != imagenEntrante.IdUsuario)
             {
                 string msg = $"Error, no puede subir una imagen de un usuario que no sea usted mismo"; //el valor IdUsuario deberia ser enviado automaticamente por el sistema cliente, no deberia fallar.
-                _logger.LogError($"Error, se intento crear una imagen de otro usuario, IdUsuario: {imagenNueva.IdUsuario}, IdRelacionado {imagenNueva.IdRelacionado}.");
+                _logger.LogError($"Error, se intento crear una imagen de otro usuario, IdUsuario: {imagenEntrante.IdUsuario}, IdRelacionado {imagenEntrante.IdRelacionado}.");
                 return new Tuple<bool, string>(false, msg);
             }
 
-            var usuario = await _context.Usuario.FindAsync(imagenNueva.IdUsuario);
+            //comprobar si los datos son posibles de relacionar
+            var usuario = await _context.Usuario.FindAsync(imagenEntrante.IdUsuario);
 
             if (usuario is null)
             {
                 string msg = $"Error, intentelo de nuevo mas tarde"; //el valor IdUsuario deberia ser enviado automaticamente por el sistema cliente, no deberia fallar.
-                _logger.LogError($"Error, no se encontro el usuario de ID {imagenNueva.IdUsuario} en la base de datos, se intento crear la imagen de IdRelacionado {imagenNueva.IdRelacionado} y TipoDeRelacion {imagenNueva.TipoDeRelacion}.");
+                _logger.LogError($"Error, no se encontro el usuario de ID {imagenEntrante.IdUsuario} en la base de datos, se intento crear la imagen de IdRelacionado {imagenEntrante.IdRelacionado} y TipoDeRelacion {imagenEntrante.TipoDeRelacion}.");
                 return new Tuple<bool, string>(false, msg);
             }
 
             bool resultado = false;
 
-            switch (imagenNueva.TipoDeRelacion)
+            switch (imagenEntrante.TipoDeRelacion)
             {
                 case "Resena":
-                    var resultadoResena = await _context.Resena.FindAsync(imagenNueva.IdRelacionado);
+                    var resultadoResena = await _context.Resena.FindAsync(imagenEntrante.IdRelacionado);
                     if (resultadoResena is not null)
                         resultado = true;
                     break;
                 case "Articulo":
-                    var resultadoArticulo = await _context.Articulo.FindAsync(imagenNueva.IdRelacionado);
+                    var resultadoArticulo = await _context.Articulo.FindAsync(imagenEntrante.IdRelacionado);
                     if (resultadoArticulo is not null)
                         resultado = true;
                     break;
                 case "ArticuloRelacionado":
-                    var resultadoArticuloRelacionado = await _context.ArticuloRelacionado.FindAsync(imagenNueva.IdRelacionado);
+                    var resultadoArticuloRelacionado = await _context.ArticuloRelacionado.FindAsync(imagenEntrante.IdRelacionado);
                     if (resultadoArticuloRelacionado is not null)
                         resultado = true;
                     break;
                 case "Usuario":
-                    var resultadoUsuario = await _context.Usuario.FindAsync(imagenNueva.IdRelacionado);
+                    var resultadoUsuario = await _context.Usuario.FindAsync(imagenEntrante.IdRelacionado);
                     if (resultadoUsuario is not null)
                         resultado = true;
                     break;
 
                 default:
-                    _logger.LogError($"Error al crear la imagen con IdRelacionada {imagenNueva.IdRelacionado} y TipoDeRelacion: {imagenNueva.TipoDeRelacion}. Entro a default en el Switch del servicio.");
+                    _logger.LogError($"Error al crear la imagen con IdRelacionada {imagenEntrante.IdRelacionado} y TipoDeRelacion: {imagenEntrante.TipoDeRelacion}. Entro a default en el Switch del servicio.");
                     break;
             }
 
             if(resultado == false)
             {
                 string msg = $"Error, no se encontro el registro al que hace referencia la imagen en la base de datos, intente de nuevo mas tarde..";
-                _logger.LogError(msg, $"idRelacionada de imagen:{ imagenNueva.IdRelacionado}, TipoDeRelacion : {imagenNueva.TipoDeRelacion}");
+                _logger.LogError(msg, $"idRelacionada de imagen:{ imagenEntrante.IdRelacionado}, TipoDeRelacion : {imagenEntrante.TipoDeRelacion}");
                 return new Tuple<bool, string>(false, msg);
             }
 
+            //terminan las comprobaciones.
+            
             bool ocupado = true;
             var random = new Random(); //esto es importante, el "new Random();" debe estar FUERA de la repeticion do{}while. y el random.Next debe estar DENTRO de la repeticion.
+
+            Imagen imagenNueva = new Imagen
+            {
+                Ruta = imagenEntrante.Ruta,
+                IdRelacionado = imagenEntrante.IdRelacionado,
+                TipoDeRelacion = imagenEntrante.TipoDeRelacion,
+                IdUsuario = imagenEntrante.IdUsuario
+            };
 
             do
             {
@@ -117,12 +132,14 @@ namespace FinalBackendAPIProgramacion2.Services
 
             string uniqueString = Guid.NewGuid().ToString();
             
+            //se sube la imagen al sistema de forma publica
             var contentPath = environment.ContentRootPath;
             var path = Path.Combine(contentPath, "wwwroot", "Imagenes", imagenNueva.Ruta);
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
             }
+            //se termino de subir la imagen
 
             var newFileName = uniqueString + ext;
             var fileWithPath = Path.Combine(path, newFileName);
@@ -130,7 +147,7 @@ namespace FinalBackendAPIProgramacion2.Services
             try
             {
                 using var stream = new FileStream(fileWithPath, FileMode.Create);
-                imagenNueva.archivoDeImagen.CopyTo(stream);
+                imagenEntrante.archivoDeImagen.CopyTo(stream);
             }
             catch (IOException ex)
             {

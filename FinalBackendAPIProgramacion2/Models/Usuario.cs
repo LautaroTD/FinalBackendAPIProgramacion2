@@ -2,26 +2,28 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace FinalBackendAPIProgramacion2.Models;
 
 public partial class Usuario
 {
-    [Required]
     public int Id { get; set; }
-    [Required]
+
     public string Nombre { get; set; }
-    [Required]
+
     public string Contrasena { get; set; }
 
     public string Email { get; set; }
-    [Required]
+
     public string Rol { get; set; }
 
     public virtual ICollection<Articulo> Articulo { get; set; } = new List<Articulo>();
 
     public virtual ICollection<ArticuloRelacionado> ArticuloRelacionado { get; set; } = new List<ArticuloRelacionado>();
+
+    public virtual ICollection<Imagen> Imagen { get; set; } = new List<Imagen>();
+
+    public virtual ICollection<RefreshToken> RefreshToken { get; set; } = new List<RefreshToken>();
 
     public virtual ICollection<Resena> Resena { get; set; } = new List<Resena>();
 }

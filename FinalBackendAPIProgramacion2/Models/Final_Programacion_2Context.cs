@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 
 namespace FinalBackendAPIProgramacion2.Models;
 
@@ -14,11 +13,13 @@ public partial class Final_Programacion_2Context : DbContext
     {
     }
 
-    public DbSet<Imagen> Imagen { get; set; } = null!;
-
     public virtual DbSet<Articulo> Articulo { get; set; }
 
     public virtual DbSet<ArticuloRelacionado> ArticuloRelacionado { get; set; }
+
+    public virtual DbSet<Imagen> Imagen { get; set; }
+
+    public virtual DbSet<RefreshToken> RefreshToken { get; set; }
 
     public virtual DbSet<Resena> Resena { get; set; }
 
@@ -26,20 +27,6 @@ public partial class Final_Programacion_2Context : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Imagen>(entity =>
-        {
-            entity.ToTable("Imagen");
-
-            entity.Property(e => e.Id).ValueGeneratedNever().IsRequired();
-            entity.Property(e => e.Ruta).HasMaxLength(1000).IsRequired();
-            entity.Property(e => e.TipoDeRelacion)
-                  .IsRequired()
-                  .HasMaxLength(20);
-            entity.Property(e => e.IdUsuario).ValueGeneratedNever().IsRequired();
-            entity.Property(e => e.IdRelacionado)
-                  .IsRequired().ValueGeneratedNever();
-        });
-
         modelBuilder.Entity<Articulo>(entity =>
         {
             entity.Property(e => e.Id).ValueGeneratedNever();
@@ -76,6 +63,58 @@ public partial class Final_Programacion_2Context : DbContext
                 .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ArticuloRelacionado_Usuario");
+        });
+
+        modelBuilder.Entity<Imagen>(entity =>
+        {
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Ruta)
+                .IsRequired()
+                .HasMaxLength(1000);
+            entity.Property(e => e.TipoDeRelacion)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Imagen)
+                .HasForeignKey(d => d.IdUsuario)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Imagen_Usuario");
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.CreatedByIp)
+                .IsRequired()
+                .HasMaxLength(45)
+                .HasColumnName("created_by_ip");
+            entity.Property(e => e.ExpiresAt).HasColumnName("expires_at");
+            entity.Property(e => e.LastUsedAt)
+                .IsRequired()
+                .HasMaxLength(1000)
+                .HasColumnName("last_used_at");
+            entity.Property(e => e.ReasonForRevoked)
+                .HasMaxLength(200)
+                .HasColumnName("reason_for_revoked");
+            entity.Property(e => e.ReplacedByTokenId).HasColumnName("replaced_by_token_id");
+            entity.Property(e => e.RevokedAt).HasColumnName("revoked_at");
+            entity.Property(e => e.TokenHash)
+                .IsRequired()
+                .HasMaxLength(1000)
+                .HasColumnName("token_hash");
+            entity.Property(e => e.UserAgent)
+                .IsRequired()
+                .HasMaxLength(450)
+                .HasColumnName("user_agent");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.User).WithMany(p => p.RefreshToken)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RefreshToken_Usuario");
         });
 
         modelBuilder.Entity<Resena>(entity =>

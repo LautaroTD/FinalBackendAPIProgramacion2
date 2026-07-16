@@ -37,7 +37,7 @@ namespace FinalBackendAPIProgramacion2.Controllers
             
 
         [HttpPost("create")]
-        public async Task<IActionResult> Post([FromForm]Imagen imagenNueva)
+        public async Task<IActionResult> Post([FromForm]DTOImagenEntrada imagenNueva)
         { // No te olvides de poner "async" cuando uses await en este metodo tambien (si es que usas async en los metodos del servicio que usas, obvio).
             //si tenes que devolver algo tipo bool, usa IActionResult, o Task<IActionResult> si es async.
             if (!ModelState.IsValid)

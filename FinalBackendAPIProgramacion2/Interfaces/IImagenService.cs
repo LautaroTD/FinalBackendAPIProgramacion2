@@ -5,7 +5,7 @@ namespace FinalBackendAPIProgramacion2.Interfaces
     public interface IImagenService
     {
         Task<IEnumerable<Imagen?>> ObtenerTodos(int objetoId, string TipoDeObjeto);
-        Task<Tuple<bool,string>> Crear(Imagen imagenNueva);
+        Task<Tuple<bool,string>> Crear(DTOImagenEntrada imagenNueva);
         Task<Tuple<bool,string>> Eliminar(int id, string nombreDeImagen);
 
         //Visto en el Video
