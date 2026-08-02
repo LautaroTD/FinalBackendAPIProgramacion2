@@ -1,4 +1,6 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Azure.Core;
+using FinalBackendAPIProgramacion2.DTO;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -18,7 +20,7 @@ namespace FinalBackendAPIProgramacion2.Services
             _config = config;
         }
 
-        public string GenerateToken(string username)
+        public DTOLoginResponse GenerateToken(string username)
         {
             var credentials =
                 new SigningCredentials(
@@ -35,12 +37,14 @@ namespace FinalBackendAPIProgramacion2.Services
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                notBefore: DateTime.UtcNow,
+                expires: DateTime.UtcNow.AddMinutes(int.Parse(_config["JwtConfig:ExpirationMinutes"])),
                 signingCredentials: credentials
             );
 
-            return new JwtSecurityTokenHandler()
-                .WriteToken(token);
+            var respuesta = new DTOLoginResponse(AccessToken: new JwtSecurityTokenHandler().WriteToken(token));
+
+            return respuesta;
         }
     }
 }

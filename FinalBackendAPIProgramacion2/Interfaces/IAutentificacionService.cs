@@ -1,7 +1,9 @@
-﻿namespace FinalBackendAPIProgramacion2.Interfaces
+﻿using FinalBackendAPIProgramacion2.DTO;
+
+namespace FinalBackendAPIProgramacion2.Interfaces
 {
     public interface IAutentificacionService
     {
-        string? Login(string nombre, string contrasena);
+        DTOLoginResponse? Login(string nombre, string contrasena);
     }
 }

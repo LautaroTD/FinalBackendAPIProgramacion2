@@ -1,12 +1,14 @@
-﻿using FinalBackendAPIProgramacion2.Models;
+﻿using FinalBackendAPIProgramacion2.DTO;
+using FinalBackendAPIProgramacion2.Interfaces;
+using FinalBackendAPIProgramacion2.Models;
+using FinalBackendAPIProgramacion2.Services;
+using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using FinalBackendAPIProgramacion2.Services;
-using FinalBackendAPIProgramacion2.Interfaces;
 
 namespace FinalBackendAPIProgramacion2.Services
 {
@@ -26,11 +28,11 @@ namespace FinalBackendAPIProgramacion2.Services
             _jwtService = jwtService;
         }
 
-        public string? Login(string _nombre, string _contrasena)
+        public DTOLoginResponse? Login(string _nombre, string _contrasena)
         {
             if(_nombre is null || _contrasena is null)
             {
-                return null;
+               return null;
             }
 
             var usuario = _context.Usuario.FirstOrDefault(e => e.Nombre == _nombre);

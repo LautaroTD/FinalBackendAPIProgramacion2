@@ -54,7 +54,9 @@ builder.Services
                 ValidAudience = builder.Configuration["Jwt:Audience"],
 
                 IssuerSigningKey =
-                    new RsaSecurityKey(provider.PublicKey)
+                    new RsaSecurityKey(provider.PublicKey),
+
+                    ClockSkew = TimeSpan.FromMinutes(2)
             };
     });
 

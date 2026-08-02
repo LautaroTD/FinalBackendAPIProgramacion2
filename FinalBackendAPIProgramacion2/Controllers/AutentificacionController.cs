@@ -25,8 +25,9 @@ namespace FinalBackendAPIProgramacion2.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequest request)
+        public IActionResult Login(LoginRequest request)
         {
+            //Problema: O el frontend no puede recibir el token (pero si los codigos http), o el backend no puede enviar el token al frontend pero si a swagger.
             if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
