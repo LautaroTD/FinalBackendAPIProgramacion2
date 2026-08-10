@@ -42,5 +42,15 @@ namespace FinalBackendAPIProgramacion2.Controllers
 
             return Ok(token);
         }
+
+        [Authorize]
+        [HttpGet("authTest")]
+        public IActionResult AuthTest()
+        {
+            var auth = Request.Headers.Authorization.ToString();
+            Console.WriteLine($"pipupipu {auth}");
+
+            return Ok("Autorizacion Correcta");
+        }
     }
 }

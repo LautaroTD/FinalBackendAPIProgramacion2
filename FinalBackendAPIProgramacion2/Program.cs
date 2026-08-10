@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System;
+using System.Text;
 using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,7 +31,7 @@ builder.Services.AddSingleton<PemKeyProvider>();
 builder.Services.AddSingleton<IKeyProvider, PemKeyProvider>();
 builder.Services.AddScoped<JwtService>();
 
-var jwtSection = builder.Configuration.GetSection("Jwt");
+var jwtSection = builder.Configuration.GetSection("JwtConfig");
 
 var privateKeyPath = jwtSection["PrivateKeyPath"];
 var publicKeyPath = jwtSection["PublicKeyPath"];
@@ -50,14 +50,16 @@ builder.Services
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
 
-                ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                ValidAudience = builder.Configuration["Jwt:Audience"],
+                ValidIssuer = builder.Configuration["JwtConfig:Issuer"],
+                ValidAudience = builder.Configuration["JwtConfig:Audience"],
+
 
                 IssuerSigningKey =
                     new RsaSecurityKey(provider.PublicKey),
 
                     ClockSkew = TimeSpan.FromMinutes(2)
             };
+        
     });
 
 builder.Services.AddAuthorization();
@@ -91,6 +93,7 @@ app.UseCors("BlazorWasm");
 
 app.UseStaticFiles(); //necesario para poder usar wwwroot y acceder a las imagenes de FORMA ESTATICA Y PUBLICA
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

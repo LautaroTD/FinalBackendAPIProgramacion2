@@ -34,8 +34,8 @@ namespace FinalBackendAPIProgramacion2.Services
         };
 
             var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
+                issuer: _config["JwtConfig:Issuer"],
+                audience: _config["JwtConfig:Audience"],
                 claims: claims,
                 notBefore: DateTime.UtcNow,
                 expires: DateTime.UtcNow.AddMinutes(int.Parse(_config["JwtConfig:ExpirationMinutes"])),

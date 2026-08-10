@@ -36,7 +36,7 @@ namespace FinalBackendAPIProgramacion2.Services
                 DTOUsuario user = new DTOUsuario
                 {
                     Nombre = usuario.Nombre,
-                    Contrasena = usuario.Contrasena,
+                    Contrasena = "",
                     Email = usuario.Email,
                     Rol = usuario.Rol
                 };
@@ -56,9 +56,9 @@ namespace FinalBackendAPIProgramacion2.Services
 
             DTOUsuario user = new DTOUsuario
             {
-                Id = (await usuario).Id,
+                Id = 0,
                 Nombre = (await usuario).Nombre,
-                Contrasena = (await usuario).Contrasena,
+                Contrasena = "",
                 Email = (await usuario).Email,
                 Rol = (await usuario).Rol
             };
