@@ -1,12 +1,13 @@
-﻿using FinalBackendAPIProgramacion2.Interfaces;
+﻿using FinalBackendAPIProgramacion2.DTO;
+using FinalBackendAPIProgramacion2.Interfaces;
 using FinalBackendAPIProgramacion2.Models;
-using FinalBackendAPIProgramacion2.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace FinalBackendAPIProgramacion2.Controllers
 {
@@ -37,19 +38,26 @@ namespace FinalBackendAPIProgramacion2.Controllers
 
             if (token == null)
             {
-                return Unauthorized();
+                return BadRequest("Nombre de usuario o contraseña incorrectos");
             }
 
             return Ok(token);
         }
 
-        [Authorize]
+
+
+        [Authorize(Roles = "admin")]
         [HttpGet("authTest")]
         public IActionResult AuthTest()
         {
-            var auth = Request.Headers.Authorization.ToString();
-            Console.WriteLine($"pipupipu {auth}");
+            var rol = User.FindFirst(ClaimTypes.Role)?.Value;
 
+            //if (rol != "admin") return Unauthorized(); //<- Asi digo que un metodo solo puede ser usado por 1 rol
+            //yupi aprendi a usar esta cosa
+            //if (string.IsNullOrEmpty(rol)) return Unauthorized(); //<- Asi pido que el metodo solo sea accesible para usuarios con cualquier rol
+
+            var auth = Request.Headers.Authorization.ToString();
+            
             return Ok("Autorizacion Correcta");
         }
     }

@@ -42,13 +42,12 @@ namespace FinalBackendAPIProgramacion2.Services
             }
 
             var result = _passwordHasher.VerifyHashedPassword(usuario, usuario.Contrasena, _contrasena);
-
             if (result != PasswordVerificationResult.Success)
             {
                 return null;
             }
-
-            return _jwtService.GenerateToken(_nombre);
+            //van a ser 3 roles, admin, editor, o usuario. Admin tiene todos los permisos, Editor puede crear, editar y borrar, Usuario solo puede ver y denunciar. Aunque tengo que crear una nueva tabla para las denuncias.
+            return _jwtService.GenerateToken(_nombre, usuario.Rol);
         }
 
     }

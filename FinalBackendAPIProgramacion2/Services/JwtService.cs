@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using FinalBackendAPIProgramacion2.DTO;
+using FinalBackendAPIProgramacion2.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -7,7 +8,7 @@ using System.Security.Cryptography;
 
 namespace FinalBackendAPIProgramacion2.Services
 {
-    public class JwtService
+    public class JwtService : IJwtService
     {
         private readonly PemKeyProvider _keys;
         private readonly IConfiguration _config;
@@ -20,7 +21,7 @@ namespace FinalBackendAPIProgramacion2.Services
             _config = config;
         }
 
-        public DTOLoginResponse GenerateToken(string username)
+        public DTOLoginResponse GenerateToken(string username, string Rol)
         {
             var credentials =
                 new SigningCredentials(
@@ -30,7 +31,8 @@ namespace FinalBackendAPIProgramacion2.Services
 
             var claims = new[]
             {
-            new Claim(ClaimTypes.Name, username)
+            new Claim(ClaimTypes.Name, username),
+            new Claim(ClaimTypes.Role, Rol)
         };
 
             var token = new JwtSecurityToken(
@@ -38,7 +40,7 @@ namespace FinalBackendAPIProgramacion2.Services
                 audience: _config["JwtConfig:Audience"],
                 claims: claims,
                 notBefore: DateTime.UtcNow,
-                expires: DateTime.UtcNow.AddMinutes(int.Parse(_config["JwtConfig:ExpirationMinutes"])),
+                expires: DateTime.UtcNow.AddMinutes(int.Parse(s: _config["JwtConfig:ExpirationMinutes"] ?? "15")),
                 signingCredentials: credentials
             );
 

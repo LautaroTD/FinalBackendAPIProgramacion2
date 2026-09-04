@@ -35,6 +35,7 @@ namespace FinalBackendAPIProgramacion2.Services
             {
                 DTOUsuario user = new DTOUsuario
                 {
+                    Id = usuario.Id,
                     Nombre = usuario.Nombre,
                     Contrasena = "",
                     Email = usuario.Email,
@@ -57,10 +58,10 @@ namespace FinalBackendAPIProgramacion2.Services
             DTOUsuario user = new DTOUsuario
             {
                 Id = 0,
-                Nombre = (await usuario).Nombre,
+                Nombre = (await usuario ?? throw new KeyNotFoundException($"Reseña con id {id} no encontrado.")).Nombre,
                 Contrasena = "",
-                Email = (await usuario).Email,
-                Rol = (await usuario).Rol
+                Email = (await usuario ?? throw new KeyNotFoundException($"Reseña con id {id} no encontrado.")).Email,
+                Rol = (await usuario ?? throw new KeyNotFoundException($"Reseña con id {id} no encontrado.")).Rol
             };
 
             return user;
@@ -68,7 +69,67 @@ namespace FinalBackendAPIProgramacion2.Services
         public async Task<bool> Crear(DTOUsuario nuevoUsuario)
         {
 
-            if (string.IsNullOrWhiteSpace(nuevoUsuario.Email) || string.IsNullOrWhiteSpace(nuevoUsuario.Contrasena) || string.IsNullOrWhiteSpace(nuevoUsuario.Rol) || string.IsNullOrWhiteSpace(nuevoUsuario.Nombre))
+            if (string.IsNullOrWhiteSpace(nuevoUsuario.Email) || string.IsNullOrWhiteSpace(nuevoUsuario.Contrasena) || string.IsNullOrWhiteSpace(nuevoUsuario.Rol) || string.IsNullOrWhiteSpace(nuevoUsuario.Nombre) || (nuevoUsuario.Rol != "admin" && nuevoUsuario.Rol != "editor" && nuevoUsuario.Rol != "usuario"))
+            {
+                throw new ArgumentException("Todos los campos son obligatorios, rellene los campos e intente de nuevo.");
+            }   
+
+            //debido a que en esta linea flataba el await, te daba un error silencioso en el swagger diciendote que estas haciendo mas de una llamada al dbcontext
+            var usuario = await _context.Usuario.FirstOrDefaultAsync(e => e.Nombre == nuevoUsuario.Nombre);
+
+            if (usuario is not null)
+            {
+                throw new ArgumentException("El nombre ya esta tomado");
+            }
+
+            Usuario usuarioParaCrear = new Usuario
+            {
+                Nombre = nuevoUsuario.Nombre,
+                Contrasena = nuevoUsuario.Contrasena,
+                Email = nuevoUsuario.Email,
+                Rol = "usuario"
+            };
+
+            usuarioParaCrear.Contrasena = _passwordHasher.HashPassword(usuarioParaCrear, usuarioParaCrear.Contrasena);
+
+            bool ocupado = true;
+            var random = new Random(); //esto es importante, el "new Random();" debe estar FUERA de la repeticion do{}while. y el random.Next debe estar DENTRO de la repeticion.
+
+            do
+            {
+                int numero = random.Next();
+
+                var user = _context.Usuario.Find(numero);
+
+                if (user is null)
+                {
+                    ocupado = false;
+                    usuarioParaCrear.Id = numero;
+                }
+
+            } while (ocupado == true);
+
+            _context.Usuario.Add(usuarioParaCrear);
+
+            try
+            {
+                //asi NO: await _context.SaveChanges();
+                //asi SI: await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error al crear el usuario {nuevoUsuario.Nombre}");
+                return false;
+            }
+            
+            return true;
+        }
+
+        public async Task<bool> CrearComoAdmin(DTOUsuario nuevoUsuario)
+        {
+
+            if (string.IsNullOrWhiteSpace(nuevoUsuario.Email) || string.IsNullOrWhiteSpace(nuevoUsuario.Contrasena) || string.IsNullOrWhiteSpace(nuevoUsuario.Rol) || string.IsNullOrWhiteSpace(nuevoUsuario.Nombre) || (nuevoUsuario.Rol != "admin" && nuevoUsuario.Rol != "editor" && nuevoUsuario.Rol != "usuario"))
             {
                 throw new ArgumentException("Todos los campos son obligatorios, rellene los campos e intente de nuevo.");
             }
@@ -121,26 +182,31 @@ namespace FinalBackendAPIProgramacion2.Services
                 _logger.LogError(ex, $"Error al crear el usuario {nuevoUsuario.Nombre}");
                 return false;
             }
-            
+
             return true;
         }
 
         public async Task<bool> Editar(DTOUsuario usuarioActualizado)
         {
-            if(string.IsNullOrWhiteSpace(usuarioActualizado.Email) || string.IsNullOrWhiteSpace(usuarioActualizado.Contrasena) || string.IsNullOrWhiteSpace(usuarioActualizado.Rol) || string.IsNullOrWhiteSpace(usuarioActualizado.Nombre))
+
+            if(string.IsNullOrWhiteSpace(usuarioActualizado.Email) || string.IsNullOrWhiteSpace(usuarioActualizado.Rol) || string.IsNullOrWhiteSpace(usuarioActualizado.Nombre))
             {
                 throw new ArgumentException("Alguno de los campos esta vacio, rellene los campos e intente de nuevo.");
             }
+
 
             var usuarioExistente = await _context.Usuario.FindAsync(usuarioActualizado.Id);
             if (usuarioExistente is null)
             {
                 throw new ArgumentException("El usuario que intenta acceder no existe en la base de datos.");
             }
-            
+
+            Console.WriteLine("WRWRWRW antes de guardar cosas");
 
             usuarioExistente.Email = usuarioActualizado.Email;
-            usuarioExistente.Contrasena = usuarioActualizado.Contrasena;
+            if (!string.IsNullOrWhiteSpace(usuarioActualizado.Contrasena)) usuarioExistente.Contrasena = usuarioActualizado.Contrasena;
+            //por alguna razon esta linea es necesaria, aparentemente si uso <EditForm> en el frontend me fuerza a aclararle todos los campos. Ridiculo
+            else usuarioExistente.Contrasena = usuarioExistente.Contrasena; 
             usuarioExistente.Rol = usuarioActualizado.Rol;
             usuarioExistente.Nombre = usuarioActualizado.Nombre;
 

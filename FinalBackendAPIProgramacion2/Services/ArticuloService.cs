@@ -38,7 +38,10 @@ namespace FinalBackendAPIProgramacion2.Services
                 DTOUsuario usuarioTemp = new DTOUsuario
                 {
                     Id = usuario.Id,
-                    Nombre = usuario.Nombre
+                    Nombre = usuario.Nombre,
+                    Contrasena = "",
+                    Rol = "",
+                    Email = ""
                 };
                 listaUsuarioReducida.Add(usuarioTemp);
             }
@@ -53,7 +56,10 @@ namespace FinalBackendAPIProgramacion2.Services
                 {
                     publicador = new DTOUsuario
                     {
-                        Nombre = "Usuario no encontrado"
+                        Nombre = "Usuario no encontrado",
+                        Email= "",
+                        Contrasena = "",
+                        Rol = ""
                     };
                 }
 
@@ -81,7 +87,7 @@ namespace FinalBackendAPIProgramacion2.Services
                 throw new KeyNotFoundException($"Articulo con id {id} no encontrado.");
             }
 
-            int IdTemp = (await articulo).IdUsuario;
+            int IdTemp = (await articulo ?? throw new KeyNotFoundException($"Articulo con id {id} no encontrado.")).IdUsuario;
 
             var usuario = _context.Usuario.FindAsync(IdTemp);
 
@@ -89,11 +95,11 @@ namespace FinalBackendAPIProgramacion2.Services
 
             DTOArticulo user = new DTOArticulo
             {
-                Id = (await articulo).Id,
-                Url = (await articulo).Url,
-                Precio = (await articulo).Precio,
-                Descripcion = (await articulo).Descripcion,
-                NombreProducto = (await articulo).Nombre,
+                Id = (await articulo ?? throw new KeyNotFoundException($"Articulo con id {id} no encontrado.")).Id,
+                Url = (await articulo ?? throw new KeyNotFoundException($"Articulo con id {id} no encontrado.")).Url,
+                Precio = (await articulo ?? throw new KeyNotFoundException($"Articulo con id {id} no encontrado.")).Precio,
+                Descripcion = (await articulo ?? throw new KeyNotFoundException($"Articulo con id {id} no encontrado.")).Descripcion,
+                NombreProducto = (await articulo ?? throw new KeyNotFoundException($"Articulo con id {id} no encontrado.")).Nombre,
                 NombrePublicador = nombrePublicador
             };
 

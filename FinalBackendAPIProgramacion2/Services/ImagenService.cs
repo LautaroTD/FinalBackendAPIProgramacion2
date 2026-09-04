@@ -24,7 +24,7 @@ namespace FinalBackendAPIProgramacion2.Services
             _logger = logger;
             environment = env;
         }
-        public async Task<IEnumerable<Imagen>> ObtenerTodos(int objetoId, string TipoDeObjeto)
+        public async Task<IEnumerable<Imagen?>> ObtenerTodos(int objetoId, string TipoDeObjeto)
         {
             return await _context.Imagen
                 .Where(i => i.TipoDeRelacion == TipoDeObjeto

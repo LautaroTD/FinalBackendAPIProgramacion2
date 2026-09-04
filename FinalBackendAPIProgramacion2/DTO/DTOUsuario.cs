@@ -11,16 +11,16 @@ namespace FinalBackendAPIProgramacion2.DTO
         public int Id { get; set; } 
         [Required]
         [MaxLength(250)]
-        public string Nombre { get; set; }
+        public required string Nombre { get; set; }
         [Required]
         [MaxLength(300)]
-        public string Contrasena { get; set; }
+        public required string Contrasena { get; set; }
         [Required]
         [EmailAddress]
         [MaxLength(500)]
-        public string Email { get; set; }
+        public required string Email { get; set; }
         [Required]
         [MaxLength(50)]
-        public string Rol { get; set; }
+        public required string Rol { get; set; }
     }
 }

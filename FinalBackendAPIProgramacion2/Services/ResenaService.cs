@@ -28,7 +28,10 @@ namespace FinalBackendAPIProgramacion2.Services
                 DTOUsuario usuarioTemp = new DTOUsuario
                 {
                     Id = usuario.Id,
-                    Nombre = usuario.Nombre
+                    Nombre = usuario.Nombre,
+                    Contrasena = "",
+                    Rol = "",
+                    Email = ""
                 };
                 listaUsuarioReducida.Add(usuarioTemp);
             }
@@ -55,7 +58,10 @@ namespace FinalBackendAPIProgramacion2.Services
                 {
                     publicador = new DTOUsuario
                     {
-                        Nombre = "Usuario no encontrado"
+                        Nombre = "Usuario no encontrado",
+                        Contrasena = "",
+                        Rol = "",
+                        Email= ""
                     };
                 }
 
@@ -94,13 +100,13 @@ namespace FinalBackendAPIProgramacion2.Services
                 throw new KeyNotFoundException($"Reseña con id {id} no encontrado.");
             }
 
-            int IdTempArticulo = (await resena).IdArticulo;
+            int IdTempArticulo = (await resena ?? throw new KeyNotFoundException($"Reseña con id {id} no encontrado.")).IdArticulo; //no se si esta es la forma correcta de hacer esto pero al menos hace que se calle.
 
             var articulo = _context.Articulo.FindAsync(IdTempArticulo);
 
             string nombreArticulo = (await articulo)?.Nombre ?? "Articulo no encontrado";
 
-            int IdTempUsuario = (await resena).IdUsuario;
+            int IdTempUsuario = (await resena ?? throw new KeyNotFoundException($"Reseña con id {id} no encontrado.")).IdUsuario;
 
             var usuario = _context.Usuario.FindAsync(IdTempUsuario);
 
@@ -108,9 +114,9 @@ namespace FinalBackendAPIProgramacion2.Services
 
             DTOResena resenaSalida = new DTOResena
             {
-                Id = (await resena).Id,
-                Calificacion = (await resena).Calificacion,
-                Descripcion = (await resena).Descripcion,
+                Id = (await resena ?? throw new KeyNotFoundException($"Reseña con id {id} no encontrado.")).Id,
+                Calificacion = (await resena ?? throw new KeyNotFoundException($"Reseña con id {id} no encontrado.")).Calificacion,
+                Descripcion = (await resena ?? throw new KeyNotFoundException($"Reseña con id {id} no encontrado.")).Descripcion,
                 NombreProducto = nombreArticulo,
                 NombrePublicador = nombrePublicador
             };

@@ -31,7 +31,10 @@ namespace FinalBackendAPIProgramacion2.Services
                 DTOUsuario usuarioTemp = new DTOUsuario
                 {
                     Id = usuario.Id,
-                    Nombre = usuario.Nombre
+                    Nombre = usuario.Nombre,
+                    Rol = "",
+                    Contrasena = "",
+                    Email = "",
                 };
                 listaUsuarioReducida.Add(usuarioTemp);
             }
@@ -57,7 +60,10 @@ namespace FinalBackendAPIProgramacion2.Services
                 {
                     publicador = new DTOUsuario
                     {
-                        Nombre = "Usuario no encontrado"
+                        Nombre = "Usuario no encontrado",
+                        Contrasena = "",
+                        Email = "",
+                        Rol = ""
                     };
                 }
 
